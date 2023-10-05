@@ -11,8 +11,10 @@ import UploadImage from "@/components/ui/UploadImage";
 import { bloodGroupOptions, departmentOptions, genderOptions } from "@/constants/globals";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, Col, Row } from "antd";
+import { useRouter } from "next/navigation";
 
 const CreateAdminPage = () => {
+  const router = useRouter()
   const onSubmit = async (data: any) => {
     try {
       console.log(data);

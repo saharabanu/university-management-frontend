@@ -3,13 +3,16 @@ import { EyeOutlined, EditOutlined, DeleteOutlined, RedoOutlined } from "@ant-de
 import ActionBars from "@/components/ui/ActionBars";
 import UmBreadcrumb from "@/components/ui/UmBreadcrumb";
 import UmTable from "@/components/ui/UmTable";
-import { useDepartmentsQuery } from "@/redux/api/departmentApi";
-import { Button, Input } from "antd";
+import { useDeleteDepartmentMutation, useDepartmentsQuery } from "@/redux/api/departmentApi";
+import { Button, Input, Modal, message } from "antd";
 import Link from "next/link";
 import { useState } from "react";
 import { useDebounced } from "@/redux/hooks";
+import  dayjs  from "dayjs";
 
 const ManageDepartmentPage = () => {
+ 
+  const [deleteDepartment] = useDeleteDepartmentMutation() 
   const query: Record<string, any> = {};
 
   const [size, setSize] = useState<number>(10);
@@ -22,8 +25,37 @@ const ManageDepartmentPage = () => {
   query["page"] = page;
   query["sortBy"] = sortBy;
   query["sortOrder"] = sortOrder;
-  
 
+
+  
+  // delete function
+  
+  const deleteDepartmentFunc = async (id:string) => {
+    try {
+      Modal.confirm({
+        title: 'Confirm Deletion',
+        content: 'Are you sure you want to delete this department?',
+        okText: 'Yes',
+        okType: 'danger',
+        cancelText: 'No',
+        onOk: async () => {
+          // Delete department logic here
+          try {
+            await deleteDepartment(id);
+            message.success('Department deleted successfully');
+          } catch (err) {
+            message.error('An error occurred while deleting the department');
+          }
+        },
+      });
+    } catch (err:any) {
+      message.error(err.message);
+    }
+
+  }
+
+
+  
 
   // debpounce
 
@@ -48,7 +80,9 @@ const ManageDepartmentPage = () => {
     {
       title: "CreatedAt",
       dataIndex: "createdAt",
-
+    render: function(data:any){
+      return data && dayjs(data).format("MMM D YYYY hh:mm A")
+    },
       sorter: true,
     },
     {
@@ -56,15 +90,39 @@ const ManageDepartmentPage = () => {
       render: function (data: any) {
         return (
           <>
-            <Button onClick={() => console.log(data)} type="primary">
-              <EyeOutlined />
-            </Button>
-            <Button onClick={() => console.log(data)} type="primary" style={{ margin: "0px 10px" }}>
+            
+            <Link href={`/super_admin/department/edit/${data?.id}`}   ><Button onClick={() => console.log(data)} type="primary" style={{ margin: "0px 10px" }}>
               <EditOutlined />
-            </Button>
-            <Button onClick={() => console.log(data)} type="primary" danger>
+            </Button></Link>
+            <Button onClick={() => deleteDepartmentFunc(data?.id) } type="primary" danger>
               <DeleteOutlined />
             </Button>
+
+
+
+            <Button
+          type="primary"
+          onClick={() => {
+            Modal.confirm({
+              title: 'Confirm',
+              content: 'Do you want to delete this department...?',
+              footer: (_, { OkBtn, CancelBtn }) => (
+                <>
+                  <Button>Custom Button</Button>
+                  <CancelBtn />
+                  <OkBtn />
+                </>
+              ),
+            });
+          }}
+        >
+          Open Modal Confirm
+        </Button>
+
+
+
+
+
           </>
         );
       },
@@ -91,7 +149,8 @@ const ManageDepartmentPage = () => {
     setSortOrder("");
   };
 
-  
+
+
 
   return (
     <div>
