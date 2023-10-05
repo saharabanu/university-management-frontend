@@ -9,7 +9,7 @@ const ActionBars = ({title, children}: IActionBarsType) => {
     <>
     
     <h1>{title}</h1>
-    <div style={{display:"flex"}}>{children}</div>
+    <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>{children}</div>
     </>
   )
 }
