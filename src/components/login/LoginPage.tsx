@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client"
-import { Button, Col, Row } from 'antd';
+import { Button, Col, Row, message } from 'antd';
 import Image from 'next/image';
 import LoginImg from '../../assets/images/login.png'
 import Form from '@/components/forms/Form';
@@ -29,6 +29,7 @@ const LoginPage = () => {
       if(res?.accessToken){
            router.push("/profile")
       }
+      message.success("User LoggedIn Successfully")
       storeUserInfo({accessToken: res?.accessToken})
       
      
