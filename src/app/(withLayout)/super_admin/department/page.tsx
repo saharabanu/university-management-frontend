@@ -1,5 +1,5 @@
 "use client";
-import { EyeOutlined, EditOutlined, DeleteOutlined, RedoOutlined } from "@ant-design/icons";
+import {  EditOutlined, DeleteOutlined, RedoOutlined } from "@ant-design/icons";
 import ActionBars from "@/components/ui/ActionBars";
 import UmBreadcrumb from "@/components/ui/UmBreadcrumb";
 import UmTable from "@/components/ui/UmTable";
@@ -100,24 +100,7 @@ const ManageDepartmentPage = () => {
 
 
 
-            <Button
-          type="primary"
-          onClick={() => {
-            Modal.confirm({
-              title: 'Confirm',
-              content: 'Do you want to delete this department...?',
-              footer: (_, { OkBtn, CancelBtn }) => (
-                <>
-                  <Button>Custom Button</Button>
-                  <CancelBtn />
-                  <OkBtn />
-                </>
-              ),
-            });
-          }}
-        >
-          Open Modal Confirm
-        </Button>
+          
 
 
 
@@ -132,7 +115,7 @@ const ManageDepartmentPage = () => {
   const onPaginationChange = (page: number, pageSize: number) => {
     // console.log(page, pageSize)
     setPage(page);
-    setSize(size);
+    setSize(pageSize);
   };
 
   // table

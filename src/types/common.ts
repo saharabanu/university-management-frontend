@@ -27,3 +27,49 @@ export interface IDepartments  {
   __v: number,
   
 };
+
+// export interface IAdmin {
+//   "password": "123456",
+//   "admin": {
+//     "name": {
+//       "firstName": "Admin",
+//       "lastName": "5",
+//       "middleName": "Aunto"
+//     },
+//     "dateOfBirth": ,
+//     "gender": ,
+//     "bloodGroup":,
+//     "email": ",
+//     "contactNo": ,
+//     "emergencyContactNo": ,
+//     "presentAddress":,
+//     "permanentAddress": ,
+//     "managementDepartment": ,
+//     "designation": ,
+//     "profileImage": 
+//   }
+// }
+
+export interface Name {
+  firstName: string;
+  lastName: string;
+  middleName: string;
+}
+
+export interface IAdmin {
+  id: string;
+  name: Name;
+  gender: string;
+  managementDepartment: string;
+  email: string;
+  contactNo: string;
+  emergencyContactNo: string;
+  dateOfBirth: string;
+  bloodGroup: string;
+  designation: string;
+  presentAddress: string;
+  permanentAddress: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}

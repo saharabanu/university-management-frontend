@@ -8,18 +8,48 @@ import FormSelectField from "@/components/forms/FormSelectField";
 import FormTextArea from "@/components/forms/FormTextArea";
 import UmBreadcrumb from "@/components/ui/UmBreadcrumb";
 import UploadImage from "@/components/ui/UploadImage";
-import { bloodGroupOptions, departmentOptions, genderOptions } from "@/constants/globals";
+import { bloodGroupOptions, genderOptions } from "@/constants/globals";
+import { useAddAdminWithFormDataMutation } from "@/redux/api/adminApi";
+import { useDepartmentsQuery } from "@/redux/api/departmentApi";
+import { IDepartments } from "@/types";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Col, Row } from "antd";
+import { Button, Col, Row, message } from "antd";
 import { useRouter } from "next/navigation";
 
 const CreateAdminPage = () => {
+  const {data, isLoading} = useDepartmentsQuery({limit:100, page:1});
+  const [addAdminWithFormData] = useAddAdminWithFormDataMutation();
+//@ts-ignore
+  const departments: IDepartments[] = data?.departments;
+ 
+
+  const departmentOptions = departments&&  departments?.map((department)=>{
+    return{
+      label: department?.title,
+      value: department?.id
+    }
+  })
+  // console.log(departmentOptions)
   const router = useRouter()
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (values: any) => {
+
+    const obj = {...values};
+    const file = obj['file'];
+    delete obj['file'];
+
+    const data = JSON.stringify(obj);
+    const formData = new FormData();
+    formData.append('file', file as Blob);
+    formData.append('data', data)
+    message.loading('Admin creating.....')
     try {
-      console.log(data);
+      // console.log(data);
+      await addAdminWithFormData(formData);
+      message.success('Admin Created Successfully')
+      router.push('/super_admin/admin')
     } catch (err: any) {
-      console.error(err.message);
+      // console.error(err.message);
+      message.error(err.message)
     }
   };
 
@@ -77,7 +107,7 @@ const CreateAdminPage = () => {
                 <FormSelectField size="large" name="admin.managementDepartment" options={departmentOptions} label="Management Department"/>
               </Col>
               <Col className="gutter-row" span={8} style={{marginBottom:'10px'}}>
-                <UploadImage/>
+                <UploadImage name="file"/>
               </Col>
             </Row>
             
