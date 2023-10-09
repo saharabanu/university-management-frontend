@@ -1,12 +1,195 @@
+"use client";
+
+import { useAcademicDepartmentsQuery, useDeleteAcademicDepartmentMutation } from "@/redux/api/academic/departmentApi";
+import { useDebounced } from "@/redux/hooks";
+import { Button, Input, Modal, message } from "antd";
+import { useState } from "react";
+import dayjs from 'dayjs'
+import Link from "next/link";
+import UmTable from "@/components/ui/UmTable";
+import ActionBars from "@/components/ui/ActionBars";
+import UmBreadcrumb from "@/components/ui/UmBreadcrumb";
+import {ReloadOutlined,EditOutlined, DeleteOutlined} from '@ant-design/icons'
 
 
-const AdminDepartmentPage = () => {
-  return (
-    <div>
-        <h1>This is Admin Department Page</h1>
-       
-    </div>
-  )
+
+
+
+const AdminACDepartmentPage = () => {
+  const query: Record<string, any> = {};
+
+  const [ deleteAcademicDepartment] =  useDeleteAcademicDepartmentMutation()
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [sortBy, setSortBy] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  query["limit"] = size;
+  query["page"] = page;
+  query["sortBy"] = sortBy;
+  query["sortOrder"] = sortOrder;
+
+
+
+// delete function
+  
+const deleteFunc = async (id:string) => {
+  try {
+    Modal.confirm({
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete this Academic Department?',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk: async () => {
+        // Delete department logic here
+        try {
+          await  deleteAcademicDepartment(id);
+        //   // console.log(deleteAdmin(id))
+           message.success('Academic department deleted successfully');
+        } catch (err) {
+          message.error('An error occurred while deleting the department');
+        }
+      },
+    });
+  } catch (err:any) {
+    // console.log(err.message)
+    message.error(err.message);
+  }
+
 }
 
-export default AdminDepartmentPage
+
+
+  const debouncedSearchTerm = useDebounced({
+    searchQuery: searchTerm,
+    delay: 600,
+  });
+
+  if (!!debouncedSearchTerm) {
+    query["searchTerm"] = debouncedSearchTerm;
+  }
+
+  
+  const { data, isLoading } = useAcademicDepartmentsQuery({ ...query });
+
+  const academicDepartments = data?.academicDepartments;
+  const meta = data?.meta;
+  
+  
+
+
+
+  const columns = [
+    {
+      title: "Title",
+      dataIndex: "title",
+    },
+    {
+      title: "Faculty",
+      dataIndex: "academicFacultyId",
+    },
+    {
+      title: "CreatedAt",
+      dataIndex: "createdAt",
+    render: function(data:any){
+      return data && dayjs(data).format("MMM D YYYY hh:mm A")
+    },
+      sorter: true,
+    },
+    {
+      title: "Action",
+      render: function (data: any) {
+        return (
+          <>
+            
+            <Link href={`/admin/academic/department/edit/${data?.id}`}   ><Button onClick={() => console.log(data)} type="primary" style={{ margin: "0px 10px" }}>
+              <EditOutlined />
+            </Button></Link>
+            <Button onClick={() => deleteFunc(data?.id) } type="primary" danger>
+              <DeleteOutlined />
+            </Button>
+
+
+
+          
+
+
+
+
+
+          </>
+        );
+      },
+    },
+  ];
+  const onPaginationChange = (page: number, pageSize: number) => {
+    // console.log("Page:", page, "PageSize:", pageSize);
+    setPage(page);
+    setSize(pageSize);
+  };
+  const onTableChange = (pagination: any, filter: any, sorter: any) => {
+    const { order, field } = sorter;
+    // console.log(order, field);
+    setSortBy(field as string);
+    setSortOrder(order === "ascend" ? "asc" : "desc");
+  };
+
+  const resetFilters = () => {
+    setSortBy("");
+    setSortOrder("");
+    setSearchTerm("");
+  };
+  const base = 'admin'
+  return (
+    <div>
+      <UmBreadcrumb
+        items={[
+          {
+            label: `${base}`,
+            link: `/${base}`,
+          },
+        ]}
+      />
+      <ActionBars title="Academic Department List">
+        <Input
+          size="large"
+          placeholder="Search"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: "20%",
+          }}
+        />
+        <div>
+          <Link href="/admin/academic/department/create">
+            <Button type="primary">Create Department</Button>
+          </Link>
+          {(!!sortBy || !!sortOrder || !!searchTerm) && (
+            <Button
+              style={{ margin: "0px 5px" }}
+              type="primary"
+              onClick={resetFilters}
+            >
+              <ReloadOutlined />
+            </Button>
+          )}
+        </div>
+      </ActionBars>
+ 
+      <UmTable
+        loading={isLoading}
+        columns={columns}
+        dataSource={academicDepartments}
+        pageSize={size}
+        totalPAge={meta?.total}
+        showSizeChanger={true}
+        onPaginationChange={onPaginationChange}
+        onTableChange={onTableChange}
+        showPagination={true}
+      />
+    </div>
+  );
+};
+
+export default AdminACDepartmentPage;
