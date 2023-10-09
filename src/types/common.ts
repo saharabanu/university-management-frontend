@@ -57,6 +57,7 @@ export interface Name {
 }
 
 export interface IAdmin {
+  _id: string;
   id: string;
   name: Name;
   gender: string;
@@ -69,6 +70,14 @@ export interface IAdmin {
   designation: string;
   presentAddress: string;
   permanentAddress: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface IAcademicFaculty {
+  id: string;
+  title: string;
   createdAt: string;
   updatedAt: string;
   __v: number;

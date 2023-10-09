@@ -1,9 +1,10 @@
 
 
-const AdminEditPage = (params:string) => {
-    const id = params;
+const AdminEditPage = () => {
   return (
-    <div>{id}</div>
+    <div>
+      <h1>This is Admin Edit page</h1>
+    </div>
   )
 }
 

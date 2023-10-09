@@ -1,21 +1,22 @@
 "use client";
 
-import { useAdminsQuery, useDeleteAdminMutation } from "@/redux/api/adminApi";
-import {EyeOutlined,DeleteOutlined,EditOutlined,ReloadOutlined } from '@ant-design/icons'
 import { useDebounced } from "@/redux/hooks";
-import { IDepartments } from "@/types";
 import { Button, Input, Modal, message } from "antd";
-import dayjs from "dayjs";
-import Link from "next/link";
 import { useState } from "react";
+import dayjs from 'dayjs'
+import Link from "next/link";
 import UmBreadcrumb from "@/components/ui/UmBreadcrumb";
 import ActionBars from "@/components/ui/ActionBars";
 import UmTable from "@/components/ui/UmTable";
+import {ReloadOutlined,DeleteOutlined,EditOutlined} from '@ant-design/icons'
+import { useAcademicFacultiesQuery, useDeleteAcademicFacultyMutation } from "@/redux/api/academic/facultyApi";
 
-const AdminPage = () => {
+
+
+const AdminFacultyPage = () => {
   const query: Record<string, any> = {};
-  const [deleteAdmin] = useDeleteAdminMutation()
 
+  const [deleteAcademicFaculty] = useDeleteAcademicFacultyMutation()
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [sortBy, setSortBy] = useState<string>("");
@@ -31,20 +32,20 @@ const AdminPage = () => {
 
 // delete function
   
-const deleteAdminFunc = async (id:string) => {
+const deleteFunc = async (id:string) => {
   try {
     Modal.confirm({
       title: 'Confirm Deletion',
-      content: 'Are you sure you want to delete this Admin?',
+      content: 'Are you sure you want to delete this Academic Faculty?',
       okText: 'Yes',
       okType: 'danger',
       cancelText: 'No',
       onOk: async () => {
         // Delete department logic here
         try {
-          await deleteAdmin(id);
-          // console.log(deleteAdmin(id))
-          message.success('Admin deleted successfully');
+          await deleteAcademicFaculty(id);
+        //   // console.log(deleteAdmin(id))
+           message.success('Academic Faculty deleted successfully');
         } catch (err) {
           message.error('An error occurred while deleting the department');
         }
@@ -67,9 +68,11 @@ const deleteAdminFunc = async (id:string) => {
   if (!!debouncedSearchTerm) {
     query["searchTerm"] = debouncedSearchTerm;
   }
-  const { data, isLoading } = useAdminsQuery({ ...query });
 
-  const admins = data?.admins;
+  
+  const { data, isLoading } = useAcademicFacultiesQuery({ ...query });
+
+  const academicFaculties = data?.academicFaculties;
   const meta = data?.meta;
   
   
@@ -78,70 +81,38 @@ const deleteAdminFunc = async (id:string) => {
 
   const columns = [
     {
-      title: "Id",
-      dataIndex: "id",
-      sorter: true,
+      title: "Title",
+      dataIndex: "title",
     },
     {
-      title: "Name",
-      dataIndex: "name",
-      render: function (data: Record<string, string>) {
-        const fullName = `${data?.firstName} ${data?.middleName} ${data?.lastName}`;
-        return <>{fullName}</>;
-      },
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-    },
-    {
-      title: "Department",
-      dataIndex: "managementDepartment",
-      render: function (data: IDepartments) {
-        return <>{data?.title}</>;
-      },
-    },
-    {
-      title: "Designation",
-      dataIndex: "designation",
-    },
-    {
-      title: "Created at",
+      title: "CreatedAt",
       dataIndex: "createdAt",
-      render: function (data: any) {
-        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
-      },
-      sorter: true,
+    render: function(data:any){
+      return data && dayjs(data).format("MMM D YYYY hh:mm A")
     },
-    {
-      title: "Contact no.",
-      dataIndex: "contactNo",
+      sorter: true,
     },
     {
       title: "Action",
-      dataIndex: "id",
       render: function (data: any) {
         return (
           <>
-            <Link href={`/super_admin/admin/details/${data.id}`}>
-              <Button onClick={() => console.log(data)} type="primary">
-                <EyeOutlined />
-              </Button>
-            </Link>
-            <Link href={`/super_admin/admin/edit/${data?.id}`}>
-              <Button
-                style={{
-                  margin: "0px 5px",
-                }}
-                onClick={() => console.log(data)}
-                type="primary"
-              >
-                <EditOutlined />
-              </Button>
-            </Link>
-            <Button onClick={()=> deleteAdminFunc(data?._id)} type="primary" danger>
+            
+            <Link href={`/admin/academic/faculty/edit/${data?.id}`}   ><Button onClick={() => console.log(data)} type="primary" style={{ margin: "0px 10px" }}>
+              <EditOutlined />
+            </Button></Link>
+            <Button onClick={() => deleteFunc(data?.id) } type="primary" danger>
               <DeleteOutlined />
             </Button>
+
+
+
+          
+
+
+
+
+
           </>
         );
       },
@@ -164,17 +135,18 @@ const deleteAdminFunc = async (id:string) => {
     setSortOrder("");
     setSearchTerm("");
   };
+  const base = 'admin'
   return (
     <div>
       <UmBreadcrumb
         items={[
           {
-            label: "super_admin",
-            link: "/super_admin",
+            label: `${base}`,
+            link: `/${base}`,
           },
         ]}
       />
-      <ActionBars title="Admin List">
+      <ActionBars title="Academic Faculty List">
         <Input
           size="large"
           placeholder="Search"
@@ -184,8 +156,8 @@ const deleteAdminFunc = async (id:string) => {
           }}
         />
         <div>
-          <Link href="/super_admin/admin/create">
-            <Button type="primary">Create Admin</Button>
+          <Link href="/admin/academic/faculty/create">
+            <Button type="primary">Create Faculty</Button>
           </Link>
           {(!!sortBy || !!sortOrder || !!searchTerm) && (
             <Button
@@ -198,11 +170,11 @@ const deleteAdminFunc = async (id:string) => {
           )}
         </div>
       </ActionBars>
- <p>problem  admin delete , edt and single get </p>
+ 
       <UmTable
         loading={isLoading}
         columns={columns}
-        dataSource={admins}
+        dataSource={academicFaculties}
         pageSize={size}
         totalPAge={meta?.total}
         showSizeChanger={true}
@@ -214,4 +186,4 @@ const deleteAdminFunc = async (id:string) => {
   );
 };
 
-export default AdminPage;
+export default AdminFacultyPage;

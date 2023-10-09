@@ -53,7 +53,7 @@ export const adminApi = baseApi.injectEndpoints({
     //  delete single admin
     deleteAdmin: build.mutation({
       query: (id:any) => ({
-        url: `${ADMIN_URL}/${id}`,
+        url: `/${ADMIN_URL}/${id}`,
         method: "DELETE",
        
 
